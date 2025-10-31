@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- Enable reference to environment variables -->
+    <context:property-placeholder />
+    <!-- Enable verification of source code annotations at init (@Required) -->
+    <context:annotation-config />
+
+    <bean name="FILE_ENUMERATOR" class="map_to_kml.util.FileEnumerator">
+        <property name="dir" value="${DIR}" />
+    </bean>
+    <bean class="map_to_kml.Converter">
+        <property name="fileEnumerator" ref="FILE_ENUMERATOR" />
+        <property name="mapFileReader">
+            <bean class="map_to_kml.map.io.MapFileReader" />
+        </property>
+        <property name="mapFile2PosRecFileConverter">
+            <bean class="map_to_kml.map.PosRecordFileConverter" />
+        </property>
+        <property name="nmeaFileReader">
+            <bean class="map_to_kml.nmea.io.NmeaFileReader" />
+        </property>
+        <property name="nmeaFile2PosRecFileConverter">
+            <bean class="map_to_kml.nmea.PosRecordFileConverter" />
+        </property>
+        <property name="tripDetector">
+            <bean class="map_to_kml.trips.TripDetector" />
+        </property>
+        <property name="tripsToKmlConverter">
+            <bean class="map_to_kml.trips.TripsToKmlConverter">
+                <property name="fileEnumerator" ref="FILE_ENUMERATOR" />
+                <property name="timeZoneLookup">
+                    <bean class="map_to_kml.util.TimeZoneLookup">
+                        <property name="infile" value="timezones-now.geojson.zip" />
+                    </bean>
+                </property>
+            </bean>
+        </property>
+        <property name="kmlWriter">
+            <bean class="map_to_kml.kml.io.KmlWriter" />
+        </property>
+    </bean>
+</beans>
